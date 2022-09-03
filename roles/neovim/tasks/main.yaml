@@ -1,0 +1,42 @@
+- name: Download neovim
+  ansible.builtin.get_url:
+    url: "https://github.com/neovim/neovim/releases/download/{{ versions.neovim }}/nvim.appimage"
+    dest: /usr/local/bin/nvim.appimage
+    mode: "0555"
+  become: true
+
+- name: Install pip
+  ansible.builtin.apt:
+    name: python3-pip
+    state: present
+  become: true
+
+- name: Update pip & install neovim plugin
+  ansible.builtin.pip:
+    name: "pip"
+    state: latest
+    executable: pip3
+
+- name: Install neovim plugin
+  ansible.builtin.pip:
+    name: "neovim"
+    state: latest
+    executable: pip3
+    extra_args: --user
+
+- name: Make sure neovim is the default editor
+  community.general.alternatives:
+    name: "{{ item }}"
+    path: /usr/local/bin/nvim.appimage
+    priority: 110
+  become: true
+  ignore_errors: True
+  with_items:
+    - ex
+    - vi
+    - view
+    - vim
+    - vimdiff
+    - editor
+    - nvim
+    - neovim
